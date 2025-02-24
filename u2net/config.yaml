@@ -1,0 +1,16 @@
+model:
+  U2Net:
+    U2NetEncoder:
+      # height, in_ch, mid_ch, out_ch, dilated, side
+      encoder_1: [7, 3, 32, 64, False, -1]
+      encoder_2: [6, 64, 32, 128, False, -1]
+      encoder_3: [5, 128, 64, 256, False, -1]
+      encoder_4: [4, 256, 128, 512, False, -1]
+      encoder_5: [4, 512, 256, 512, True, -1]
+      encoder_6: [4, 512, 256, 512, True, 512]
+    U2NetDecoder:
+      decoder_5: [4, 1024, 256, 512, True, 512]
+      decoder_4: [4, 1024, 128, 256, False, 256]
+      decoder_3: [5, 512, 64, 128, False, 128]
+      decoder_2: [6, 256, 32, 64, False, 64]
+      decoder_1: [7, 128, 16, 64, False, 64]
