@@ -7,12 +7,14 @@ class TfExampleDecoder(object):
     def __init__(self):
         self._keys_to_features = {
             'image': tf.io.VarLenFeature(tf.float32),
-            'label': tf.io.FixedLenFeature([1], tf.int64),
+            # 'label': tf.io.FixedLenFeature([1], tf.int64),
+            'label': tf.io.VarLenFeature(tf.float32),
+
         }
         
     def decode(self,
                serialized_example: T) -> Dict:
-        parsed_tensor = tf.io.parse_single_example(serialized=serialized_example,
+        parsed_tensors = tf.io.parse_single_example(serialized=serialized_example,
                                                    features=self._keys_to_features)
         for k in parsed_tensors:
             if isinstance(parsed_tensors[k], tf.SparseTensor):

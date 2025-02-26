@@ -62,15 +62,16 @@ class U2NetModuel(tf.keras.Model):
                                              name=name + f"__OutConv")
         
     def call(self,
-             inputs: T,
-             training: bool) -> Tuple(T, List):
+             inputs: Dict,
+             training: bool) -> Tuple[T, List]:
         
+        image = inputs['image']
         # Encoder
-        encoder_output, encoder_residuals = self.scale_in(inputs=inputs,
+        encoder_output, encoder_residuals = self.scale_in(inputs=image,
                                                           training=training)
         
         # Decoder
-        decoder_output, decoder_residuals = self.scale_out(inputs=outs,
+        decoder_output, decoder_residuals = self.scale_out(inputs=encoder_output,
                                                            encoder_residuals=encoder_residuals,
                                                            training=training)
         
@@ -185,12 +186,12 @@ class U2NetDecoder(tf.keras.Model):
         
         for idx, (k, v) in enumerate(self.decoder_config.items()):
             layer_name = k
-            rsu_num, in_ch, out_ch, dilated, side = v
+            rsu_num, in_ch, out_ch, mid_ch, dilated, side = v
             self.decoder_list.append(
                 tf.keras.Sequential([
                     RSU(rsu_num=rsu_num,
                         is_FRES=dilated,
-                        output_channels=outch,
+                        output_channels=out_ch,
                         mid_channels=mid_ch,
                         name=name + f"__{layer_name}")
                 ], name=name + f"__DecoderStage_{idx}")

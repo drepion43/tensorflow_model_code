@@ -14,3 +14,19 @@ model:
       decoder_3: [5, 512, 64, 128, False, 128]
       decoder_2: [6, 256, 32, 64, False, 64]
       decoder_1: [7, 128, 16, 64, False, 64]
+
+  U2NetLite:
+    U2NetEncoder:
+      # height, in_ch, mid_ch, out_ch, dilated, side
+      encoder_1: [7, 3, 16, 64, False, -1]
+      encoder_2: [6, 64, 16, 64, False, -1]
+      encoder_3: [5, 64, 16, 64, False, -1]
+      encoder_4: [4, 64, 16, 64, False, -1]
+      encoder_5: [4, 64, 16, 64, True, -1]
+      encoder_6: [4, 64, 16, 64, True, 64]
+    U2NetDecoder:
+      decoder_5: [4, 128, 16, 64, True, 64]
+      decoder_4: [4, 128, 16, 64, False, 64]
+      decoder_3: [5, 128, 16, 64, False, 64]
+      decoder_2: [6, 128, 16, 64, False, 64]
+      decoder_1: [7, 128, 16, 64, False, 64]

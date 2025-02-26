@@ -30,7 +30,7 @@ class BasicConv(tf.keras.layers.Layer):
         super(BasicConv, self).__init__(name=name)
         
         self.conv2d = tf.keras.layers.Conv2D(filters=output_channels,
-                                             kernel_size=keren_size,
+                                             kernel_size=kernel_size,
                                              strides=stride,
                                              padding=padding,
                                              dilation_rate=dilation_rate,
@@ -95,39 +95,39 @@ class RSU(tf.keras.Model):
                                         name=name + f"__ENCODER_POOL")
                 )
         
-    if self.is_FRES:
-        self.reconv_x = BasicConv(output_channels=mid_channels,
-                                  dilation_rate=(pow(2, self.rsu_num - 2), pow(2, self.rsu_num - 2)),
-                                  name=name + f"__ENCODER_RECONV_{self.rsu_num - 2}")
-        self.reconv_xx = BasicConv(output_channels=mid_channels,
-                                  dilation_rate=(pow(2, self.rsu_num - 1), pow(2, self.rsu_num - 1)),
-                                  name=name + f"__ENCODER_RECONV_{self.rsu_num - 1}")
-    else:
-        self.reconv_x = BasicConv(output_channels=mid_channels,
-                                  dilation_rate=(1, 1),
-                                  name=name + f"__ENCODER_RECONV_{self.rsu_num - 2}")
-        self.reconv_xx = BasicConv(output_channels=mid_channels,
-                                  dilation_rate=(2, 2),
-                                  name=name + f"__ENCODER_RECONV_{self.rsu_num - 1}")
-    
-    self.rebconvd_list = []
-    for idx in range(self.rsu_num - 1, 1, -1):
         if self.is_FRES:
-            dirate = (pow(2, idx - 1), pow(2, idx - 1))
+            self.reconv_x = BasicConv(output_channels=mid_channels,
+                                    dilation_rate=(pow(2, self.rsu_num - 2), pow(2, self.rsu_num - 2)),
+                                    name=name + f"__ENCODER_RECONV_{self.rsu_num - 2}")
+            self.reconv_xx = BasicConv(output_channels=mid_channels,
+                                    dilation_rate=(pow(2, self.rsu_num - 1), pow(2, self.rsu_num - 1)),
+                                    name=name + f"__ENCODER_RECONV_{self.rsu_num - 1}")
         else:
-            dirate = (1, 1)
-        
-        self.rebconvd_list.append(
-            tf.keras.Sequential([
-                BasicConv(output_channels=mid_channels,
-                          dilation_rate=dirate,
-                          name=name + f"__DECODER_RECONVD_{idx}")
-            ], 
-                                name=name + f"__DECODER")
-        )
-    self.reconv1d = BasicConv(output_channels=output_channels,
-                              dilation_rate=(1, 1),
-                              name=name + "__DECODER_RECONVD_1")
+            self.reconv_x = BasicConv(output_channels=mid_channels,
+                                    dilation_rate=(1, 1),
+                                    name=name + f"__ENCODER_RECONV_{self.rsu_num - 2}")
+            self.reconv_xx = BasicConv(output_channels=mid_channels,
+                                    dilation_rate=(2, 2),
+                                    name=name + f"__ENCODER_RECONV_{self.rsu_num - 1}")
+    
+        self.rebconvd_list = []
+        for idx in range(self.rsu_num - 1, 1, -1):
+            if self.is_FRES:
+                dirate = (pow(2, idx - 1), pow(2, idx - 1))
+            else:
+                dirate = (1, 1)
+            
+            self.rebconvd_list.append(
+                tf.keras.Sequential([
+                    BasicConv(output_channels=mid_channels,
+                            dilation_rate=dirate,
+                            name=name + f"__DECODER_RECONVD_{idx}")
+                ], 
+                                    name=name + f"__DECODER")
+            )
+        self.reconv1d = BasicConv(output_channels=output_channels,
+                                dilation_rate=(1, 1),
+                                name=name + "__DECODER_RECONVD_1")
     
     def call(self,
              inputs: T,
@@ -140,7 +140,7 @@ class RSU(tf.keras.Model):
         encoder_outputs = deque()
         for idx in range(self.rsu_num - 2):
             x = self.rebconv_list[idx](x,
-                                       training=trainig)
+                                       training=training)
             encoder_outputs.appendleft(x)
             
             if not self.is_FRES:

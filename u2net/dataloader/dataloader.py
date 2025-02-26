@@ -11,14 +11,14 @@ class InputReader(object):
                  file_pattern: Text,
                  is_training: bool,
                  batch_size: int,
-                 max_cnt: int,
+                 scale: int,
                  buffer_size: int,
                  debug: Optional[bool] = False):
         
         self._file_pattern = file_pattern
         self._is_training = is_training
         self._batch_size = batch_size
-        self._max_cnt = max_cnt
+        self._scale = scale
         self._buffer_size = buffer_size
         self._debug = debug
         
@@ -32,7 +32,12 @@ class InputReader(object):
             train = data.pop('image')
             label = data.pop('label')
             
-            data['image'] = train / 255
+            scale = tf.constant(value=[self._scale],
+                                dtype=tf.float32)
+            data['image'] = tf.divide(x=train,
+                                      y=scale)
+            label = tf.divide(x=label,
+                              y=scale)
         
             return data, label
         
