@@ -168,22 +168,7 @@ class U2NetDecoder(tf.keras.Model):
 
         self.module_size = len(self.decoder_config.items())
         
-        additional_side_list = deque()
-        for idx, (k, v) in enumerate(self.encoder_config.items()):
-            _, _, _, _, _, side = v
-            if side != -1:
-                additional_side_list.appendleft(
-                    tf.keras.Sequential([
-                        tf.keras.layers.Conv2D(filters=side,
-                                               kernel_size=(3, 3),
-                                               padding='same',
-                                               name=name + f"__SideConv{idx}")
-                    ], name=name + f"__EncoderSideStage_{idx}")
-                )
-        
-        self.decoder_list = []
-        self.side_list = deque()
-        
+        self.decoder_list = []        
         for idx, (k, v) in enumerate(self.decoder_config.items()):
             layer_name = k
             rsu_num, in_ch, out_ch, mid_ch, dilated, side = v
@@ -196,15 +181,6 @@ class U2NetDecoder(tf.keras.Model):
                         name=name + f"__{layer_name}")
                 ], name=name + f"__DecoderStage_{idx}")
             )
-            self.side_list.appendleft(
-                    tf.keras.Sequential([
-                        tf.keras.layers.Conv2D(filters=side,
-                                               kernel_size=(3, 3),
-                                               padding='same',
-                                               name=name + f"__SideConv{idx}")
-                    ], name=name + f"__DecoderSideStage_{idx}")
-                )
-        self.side_list.extend(additional_side_list)
         
     def call(self,
              inputs: T,
